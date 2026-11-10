@@ -1,0 +1,35 @@
+seed: 1234
+headless: false
+renderer: RayTracedLighting
+disable_viewport_updates: false
+render_on_step: true
+window_width: 1280
+window_height: 720
+
+stage_units_in_meters: 1.0
+physics_dt: 0.008333333333333333
+rendering_dt: 0.03333333333333333
+physics_scene_path: /World/PhysicsScene
+gravity_mps2: 1.62
+
+sun_intensity: 8000.0
+sun_angle_deg: 0.53
+
+camera:
+  enabled: true
+  prim_path: /World/Rocket/hopper/Camera
+  resolution: [640, 480]
+  frequency_hz: 30.0
+  translation: [0.0, -8.0, 4.0]
+  rotation_deg: [60.0, 0.0, 0.0]
+  focal_length_mm: 24.0
+
+episode:
+  max_steps: 1000
+
+# Training configuration
+# Uses medium_train quality preset from terrain_config.yaml
+# This ensures training terrain is detailed enough for realistic contact dynamics
+training:
+  terrain_quality_profile: medium_train
+  description: "Training environment with medium-quality terrain (192x192). Suitable for RL training."

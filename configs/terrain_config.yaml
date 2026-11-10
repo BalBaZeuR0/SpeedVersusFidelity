@@ -1,0 +1,148 @@
+seed: 7
+prim_path: /World/MoonTerrain
+
+dem:
+  source_url: https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_4.tif
+  filename: ldem_4.tif
+  cache_dir: assets/moon_heightmaps
+  units: kilometers_relative
+  timeout_s: 120.0
+  remove_patch_mean: true
+
+# Terrain quality presets
+# Training: medium_train (192x192) is the default; high_train (256x256) is optional
+# Demo: demo_high (256x256) for high-quality video recording
+# Debug: low_debug (128x128) only for minimal VRAM tests
+terrain_quality: medium_train
+
+terrain_quality_presets:
+  low_debug:
+    heightmap_resolution: 128
+    collision_resolution: 128
+    visual_resolution: 128
+    description: "Low-poly debug mode. Only for minimal VRAM smoke tests."
+    
+  medium_train:
+    heightmap_resolution: 192
+    collision_resolution: 192
+    visual_resolution: 192
+    description: "Medium quality for training. Detailed enough for realistic contact dynamics."
+    
+  high_train:
+    heightmap_resolution: 256
+    collision_resolution: 256
+    visual_resolution: 256
+    description: "High quality for training. Supports detailed contact dynamics."
+    
+  high_detail_landing:
+    heightmap_resolution: 128        # Global: 128x128 = ~32k triangles (çevre)
+    collision_resolution: 512        # Local landing detail: 512x512, only blended near touchdown
+    visual_resolution: 512           # Visual/contact detail for the landing zone
+    description: "Two-tier terrain: 128x128 global (~32k tri) + real 512x512 landing mesh (~522k tri)"
+    
+  demo_high:
+    heightmap_resolution: 256
+    collision_resolution: 256
+    visual_resolution: 256
+    description: "High quality for video rendering. Same geometry as high_train."
+
+# Global terrain patch parameters
+terrain_size_m: [80.0, 80.0]  # 80m x 80m global patch
+patch_shape_pixels: [256, 256]
+vertical_scale: 1.0
+dem_vertical_scale: 0.00030
+remove_patch_mean: true
+
+# Lunar surface model:
+# height(x,y) = NASA DEM macro form + base slope + low-frequency undulation
+#             + crater bowl/rim deformation + local regolith roughness.
+lunar_surface:
+  description: "Cratered, dusty, rough regolith represented as a layered height field."
+
+# Presentation/training terrain shaping:
+# NASA DEM provides the broad lunar region, but the raw patch is filtered so the
+# "normal ground" stays low and rolling instead of becoming a field of spikes.
+dem_base_smoothing_passes: 4
+dem_final_smoothing_passes: 1
+dem_percentile_clip: [1.0, 99.0]
+dem_max_relief_m: 3.8
+dem_feature_gain: 0.95
+smooth_visual_normals: true
+
+# Local landing zone detail patch (optional high-resolution local patch)
+# Two-tier terrain: low-res global + high-res local detail
+# Example: 128x128 global (~32k tri) + real 512x512 local landing zone (~522k tri).
+# 1024x1024 is available for close-up demos, but it is heavy on 8GB VRAM.
+local_detail_patch:
+  enabled: true
+  
+  # Local detail patch size around landing zone (meters)
+  patch_size_m: [24.0, 24.0]  # 24m x 24m around touchdown; dense enough for leg/foot contact
+  
+  # Resolution of local detail patch (higher = more triangles in landing zone)
+  # 512x512 = recommended high-detail landing, 1024x1024 = experimental close-up only.
+  resolution: 512
+  
+  # Multi-scale blending: distance-based transition
+  blend_radius_m: 6.0          # Smooth blend zone around the touchdown patch
+  blend_scale: 2.0             # How aggressively to blend (higher = sharper transition)
+  edge_fade_width_m: 4.0       # Fade dense detail out at patch edges so it does not look square
+  
+  # High-frequency detail in landing zone
+  noise_scale: 0.022           # cm-level landing-zone micro relief for realistic foot contact
+  noise_smoothing_passes: 1    # Preserve visible foot-scale ripples
+  regolith_grain_scale: 0.012  # Continuous fine texture across the whole landing patch
+  regolith_grain_smoothing_passes: 1
+  regolith_ripple_scale: 0.010
+  regolith_ripple_wavelength_m: [0.18, 0.42]
+  micro_feature_count: 0     # Small pebbles/pits visible near landing feet
+  micro_feature_radius_m_range: [0.030, 0.130]
+  micro_feature_height_m_range: [-0.030, 0.060]
+  micro_feature_sharpness: 0.70
+  micro_pit_probability: 0.62
+  micro_pit_rim_ratio: 0.28
+  footprint_detail_radius_m: 4.8
+  footprint_micro_feature_count: 0
+  footprint_micro_feature_radius_m_range: [0.025, 0.100]
+  footprint_micro_feature_height_m_range: [-0.025, 0.055]
+  smooth_normals: false        # Make foot-scale geometry read in close-up views
+  max_slope_deg: 38.0          # Keep local detail landable, not needle-like
+  slope_limit_passes: 8
+  surface_lift_m: 0.003        # Prevent viewport z-fighting over the coarse base mesh
+
+# Crater and surface modification parameters
+crater_count_range: [8, 18]
+crater_radius_m_range: [1.0, 10.0]
+crater_depth_to_radius_ratio: [0.06, 0.17]
+crater_rim_height_ratio: [0.02, 0.06]
+crater_floor_flattening: 0.28
+# Absolute fallback if ratio fields are removed.
+crater_depth_m_range: [0.06, 0.38]
+
+# Prefer degree-based slope randomization for readability.
+base_slope_deg_range: [0.0, 3.5]
+slope_x_range: [-0.004, 0.004]
+slope_y_range: [-0.004, 0.004]
+
+low_frequency_noise_scale: 0.16
+low_frequency_noise_smoothing_passes: 10
+roughness_scale_range: [0.018, 0.050]
+roughness_smoothing_passes: 2
+
+physics_material:
+  static_friction: 0.85
+  dynamic_friction: 0.65
+  restitution: 0.02
+
+# Reproducibility: all instances with the same seed must produce identical terrain
+reproducible_seed: true
+
+# 3D Rock models distribution configuration
+rocks:
+  enabled: true
+  total_count: 35                     # Toplam kaya sayısı
+  landing_zone_percentage: 0.75       # Kayaların %75'i yüksek detaylı iniş alanında oluşur
+  min_distance_from_center_m: 2.0     # Roketin iniş ayağına direkt çarpmaması için minimum mesafe
+  landing_zone_radius_m: 12.0         # Yüksek detaylı alanın yarıçapı (24m x 24m yamanın yarısı)
+  outer_radius_m: 35.0                # Geri kalan arka plan kayalarının saçılacağı maksimum mesafe
+  scale_range: [0.12, 0.55]           # Kaya boyutu (12cm ile 55cm arası)

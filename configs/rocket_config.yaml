@@ -1,0 +1,28 @@
+prim_path: /World/Rocket
+rigid_body_path: /World/Rocket/hopper
+mjcf_path: assets/rocket/hopper_lunar.xml
+usd_path: assets/rocket/hopper_lunar.usd
+
+mass_kg: 1.63
+visual_scale: 6.0
+
+spawn:
+  altitude_m: 25.0
+  surface_sample_radius_m: 1.2
+  ground_clearance_m: 1.05
+  sample_xy_from_terrain: true
+  terrain_margin_m: 8.0
+  xy_range_m: [-30.0, 30.0]
+  xy_offset_range_m: [-6.0, 6.0]      # Hedef noktaya olan rastgele uzaklık sapması (X ve Y'de)
+  attitude_deg_range: [-5.0, 5.0]
+
+thrust:
+  max_newtons: 30.0
+  default_direction: [0.0, 0.0, 1.0]
+  max_gimbal_deg: 12.0
+  throttle_range: [0.0, 1.0]
+  site_name: thrust_site
+  tvc_yaw_joint: tvc_yaw_joint
+  tvc_pitch_joint: tvc_pitch_joint
+  six_dof: true            # PhysX: rotate thrust into the body frame + apply gimbal moment (lever x F)
+  lever_arm_m: 0.85        # nozzle offset below the CoM along body -Z; matches source/lunar_rocket_lab Isaac Lab env

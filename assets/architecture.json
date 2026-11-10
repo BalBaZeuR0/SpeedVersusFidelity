@@ -1,0 +1,25 @@
+{
+  "lang": "en",
+  "nodes": {
+    "cfg":   {"label": "configs/*.yaml\nvehicle, sim, terrain", "pos": [0, 0], "kind": "data"},
+    "scen":  {"label": "Scenarios\nS1-S2 open loop, c1-c5", "pos": [0, 1.5], "kind": "data"},
+    "run":   {"label": "run_adapter_\nfidelity_matrix.py", "pos": [2.8, 0.75], "kind": "process"},
+    "bench": {"label": "benchmark_adapter_\nfidelity.py", "pos": [5.6, 0.75], "kind": "process"},
+    "ctrl":  {"label": "DescentController\nguidance + inner loop", "pos": [5.6, 2.6], "kind": "model"},
+    "ana":   {"label": "Analytic adapter\n(NumPy, Euler)", "pos": [8.6, 0], "kind": "model"},
+    "phx":   {"label": "PhysX adapter\n(6-DOF rigid body)", "pos": [8.6, 1.5], "kind": "external"},
+    "logs":  {"label": "Per-run logs\n.npz + .json", "pos": [11.6, 0.75], "kind": "data"},
+    "anl":   {"label": "analyze_adapter_\nfidelity.py", "pos": [11.6, 2.6], "kind": "process"},
+    "out":   {"label": "RMSE, touchdown,\nspeedup, figures", "pos": [8.6, 3.4], "kind": "output"}
+  },
+  "edges": [
+    ["cfg", "run"], ["scen", "run"],
+    ["run", "bench", "one run"],
+    ["bench", "ana", "action"], ["bench", "phx", "action"],
+    {"from": "bench", "to": "ctrl", "label": "state / action", "rad": 0.35, "label_offset": [0.75, 0]},
+    {"from": "ctrl", "to": "bench", "rad": 0.35},
+    ["ana", "logs"], ["phx", "logs"],
+    ["logs", "anl"], ["anl", "out"]
+  ],
+  "groups": [{"label": "Isaac Sim 6.0.1 (Docker, GPU)", "nodes": ["phx"], "label_at": "bottom"}]
+}

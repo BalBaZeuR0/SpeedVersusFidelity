@@ -1,0 +1,10 @@
+# run outputs (regenerate with the commands in README)
+outputs/
+# lunar DEM downloaded on first run by app/terrain_generator.py
+assets/moon_heightmaps/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.vscode/
+.idea/

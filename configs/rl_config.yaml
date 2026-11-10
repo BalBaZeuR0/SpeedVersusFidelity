@@ -1,0 +1,131 @@
+algorithm:
+  primary: SAC
+  baseline: PPO
+  training_enabled: true
+  note: "Stage 1 training uses state_lidar observations. RGB/depth are reserved for later vision-based policies."
+
+action_space:
+  type: Box
+  low: [0.0, -1.0, -1.0]
+  high: [1.0, 1.0, 1.0]
+  meaning:
+    - normalized main thrust
+    - normalized gimbal_x
+    - normalized gimbal_y
+
+observation:
+  mode: state_lidar_depth_rgb
+  early_sac_mode: state_lidar
+  patch_size_m: 80.0
+  max_velocity_mps: 20.0
+  max_angular_velocity_rps: 5.0
+  max_acceleration_mps2: 30.0
+  max_altitude_m: 60.0
+  max_lidar_distance_m: 30.0
+  max_depth_m: 30.0
+  lidar_shape: [32]
+  depth_shape: [1, 64, 64]
+  rgb_shape: [3, 84, 84]
+  state_order:
+    - dx
+    - dy
+    - dz
+    - vx
+    - vy
+    - vz
+    - qw
+    - qx
+    - qy
+    - qz
+    - wx
+    - wy
+    - wz
+    - ax
+    - ay
+    - az
+    - altitude_to_ground
+    - main_thrust
+    - gimbal_x
+    - gimbal_y
+    - previous_action_thrust
+    - previous_action_gimbal_x
+    - previous_action_gimbal_y
+    - local_slope_at_target
+    - local_roughness_at_target
+    - safe_zone_score
+    - terrain_height_at_target
+
+reward:
+  k_progress: 2.0
+  k_target: 0.03
+  k_tilt: 1.5
+  k_angvel: 0.05
+  k_vxy: 0.08
+  k_vz: 0.25
+  k_fuel: 0.01
+  k_smooth: 0.03
+  k_sat: 0.05
+  k_terrain: 1.0
+  time_penalty: -0.01
+  terminal_rewards:
+    soft_landing: 80.0
+    acceptable_landing: 30.0
+    harsh_landing: -20.0
+    crash: -80.0
+    timeout: -30.0
+
+classification:
+  soft_target_distance_m: 1.0
+  soft_vertical_speed_mps: 0.5
+  soft_horizontal_speed_mps: 0.3
+  soft_tilt_deg: 5.0
+  soft_angular_speed_rps: 0.2
+  soft_safe_zone_score: 0.7
+  soft_force_limit_n: 60.0
+  acceptable_target_distance_m: 2.0
+  acceptable_vertical_speed_mps: 1.0
+  acceptable_horizontal_speed_mps: 0.7
+  acceptable_tilt_deg: 10.0
+  acceptable_angular_speed_rps: 0.5
+  acceptable_safe_zone_score: 0.5
+  acceptable_force_limit_n: 120.0
+  crash_force_limit_n: 200.0
+  crash_vertical_speed_mps: 2.0
+  crash_tilt_deg: 25.0
+  ground_altitude_m: 0.2
+
+sensor_noise:
+  enabled: true
+  sigma_gyro: 0.01
+  sigma_acc: 0.05
+  sigma_orientation_deg: 0.5
+  sigma_alt: 0.05
+  altimeter_dropout_prob: 0.01
+  sigma_vel: 0.04
+  sigma_lidar: 0.08
+  lidar_dropout_prob: 0.02
+  depth_noise_std: 0.02
+  depth_dropout_pixel_prob: 0.01
+  rgb_noise_std: 0.02
+  rgb_brightness_range: [0.9, 1.1]
+  rgb_contrast_range: [0.9, 1.1]
+
+actuator:
+  enabled: true
+  alpha: 0.7
+  delay_steps: 1
+  thrust_noise_std: 0.02
+  gimbal_noise_std: 0.01
+
+sac_plan:
+  learning_rate: 0.0003
+  buffer_size: 500000
+  batch_size: 256
+  gamma: 0.99
+  tau: 0.005
+  train_freq: 1
+  gradient_steps: 1
+  ent_coef: auto
+  learning_starts: 10000
+  target_update_interval: 1
+  max_episode_steps: 1000
