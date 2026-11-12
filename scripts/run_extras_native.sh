@@ -9,7 +9,8 @@
 #   ./scripts/run_extras_native.sh
 #
 # Each single run is its own subprocess (crash isolation, clean timing), exactly
-# like run_adapter_fidelity_matrix.py.
+# like run_adapter_fidelity_matrix.py. A run that hangs (Kit startup can deadlock) is
+# killed after RUN_TIMEOUT_S seconds (default 300).
 set -uo pipefail
 
 # shellcheck source=native_env.sh
@@ -25,7 +26,7 @@ EX="outputs/adapter_fidelity/extras"
 mkdir -p "$EX"
 
 fail=0
-run() { echo "+ $PY -m $MOD $*"; "$PY" -m "$MOD" "$@" || { echo "  !! rc=$?"; fail=$((fail+1)); }; }
+run() { echo "+ $PY -m $MOD $*"; timeout -k 10 "${RUN_TIMEOUT_S:-300}" "$PY" -m "$MOD" "$@" || { echo "  !! rc=$?"; fail=$((fail+1)); }; }
 
 # ------------------------------------------------------------------ T3 (cheapest first)
 echo "=== T3  PhysX determinism ==="
