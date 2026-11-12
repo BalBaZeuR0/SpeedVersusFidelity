@@ -8,3 +8,9 @@ __pycache__/
 venv/
 .vscode/
 .idea/
+
+# extra python packages for the native Isaac venv (scripts/native_env.sh)
+.deps/
+# generated from hopper_lunar.xml on the first PhysX run
+assets/rocket/*.usd
+assets/rocket/hopper_lunar/

@@ -34,20 +34,21 @@ PhysX is the reference; the analytic run is scored against it.
 | `app/benchmark_adapter_fidelity.py` | one (scenario, repeat, adapter) run → npz + JSON meta. Drives adapters **directly**. `--emit-init` writes the shared initial condition; `--closed-loop` runs the controller in the loop, otherwise a fixed action sequence is replayed. |
 | `app/run_adapter_fidelity_matrix.py` | runs the matrix as isolated subprocesses. Default suite: `s1_hover s2_freefall_then_burn c1_nominal c2_divert c3_fast_descent c4_tight_guidance c5_high_tilt` |
 | `analysis/analyze_adapter_fidelity.py` | pairs analytic/physx, computes speed + pos/vel/tilt/omega divergence + landing agreement → `metrics.csv`, `summary.csv`, figures |
-| `scripts/run_adapter_fidelity_docker.sh` | runs the matrix inside `nvcr.io/nvidia/isaac-sim:6.0.1` so both adapters are timed on the same host. `FID_OUT_DIR`, `FID_SCENARIOS`, `FID_REPEATS`, ... env overrides |
+| `scripts/run_matrix_native.sh` | runs the matrix with a native Isaac Sim 6.0.1 install (`ISAAC_PY`, see `scripts/native_env.sh`) so both adapters are timed with the same Python on the same host. `FID_OUT_DIR`, `FID_SCENARIOS`, `FID_REPEATS`, ... env overrides |
+| `scripts/run_extras_native.sh` | extras: 6-DOF ablation, dt sweep, PhysX determinism |
 | `tests/test_adapter_fidelity.py` | static checks, no Isaac (25 tests) |
 
 ## Quick start
 
 ```bash
-# analytic-only dry run on the host (needs numpy + pandas; see .venv-analytic)
+# analytic-only dry run (needs numpy + pandas; see requirements.txt)
 python -m app.run_adapter_fidelity_matrix --adapters analytic --repeats 2 --horizon 1000
 
-# full matrix incl. PhysX, inside the Isaac Sim container (~40 min)
-FID_REPEATS=5 FID_HORIZON=1000 FID_WARMUP=100 ./scripts/run_adapter_fidelity_docker.sh
+# full matrix incl. PhysX, native Isaac Sim
+FID_REPEATS=5 FID_HORIZON=1000 FID_WARMUP=100 ./scripts/run_matrix_native.sh
 
 # single-scenario check into an isolated dir
-FID_OUT_DIR=outputs/smoke FID_REPEATS=1 FID_SCENARIOS="c1_nominal" ./scripts/run_adapter_fidelity_docker.sh
+FID_OUT_DIR=outputs/smoke FID_REPEATS=1 FID_SCENARIOS="c1_nominal" ./scripts/run_matrix_native.sh
 
 # metrics + figures
 python analysis/analyze_adapter_fidelity.py

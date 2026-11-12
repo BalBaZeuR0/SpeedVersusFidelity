@@ -7,7 +7,8 @@ Haktan Yusuf Güloğlu). Only the modules this study imports are included.
 
 Unchanged from LunarRocket `9af2744`: `app/config.py`, `app/randomization.py`, `app/rl_types.py`,
 `app/sensors.py`, `app/terrain_generator.py`, `configs/sim_config.yaml`, `configs/terrain_config.yaml`,
-`configs/rl_config.yaml`.
+`configs/rl_config.yaml`, `assets/rocket/hopper_lunar.xml` (MuJoCo model of the 1.63 kg
+gimbal-TVC hopper; converted to USD on first PhysX run).
 
 Modified for this study: `app/rocket_asset.py` (6-DOF thrust: body-frame force + gimbal moment,
 ported from LunarRocket's Isaac Lab task), `app/world_adapter.py` (reads real linear/angular velocity),

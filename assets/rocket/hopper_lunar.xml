@@ -1,0 +1,165 @@
+<mujoco model="vtvl_hopper_lunar">
+    <compiler angle="degree" coordinate="local"/>
+
+    <option gravity="0 0 -1.62"
+            timestep="0.002"
+            integrator="implicitfast"
+            iterations="80"/>
+
+    <asset>
+        <material name="body_mat" rgba="0.7 0.7 0.7 1"/>
+        <material name="leg_mat" rgba="0.2 0.2 0.2 1"/>
+        <material name="foot_mat" rgba="0.9 0.9 0.2 1"/>
+        <material name="engine_mat" rgba="0.8 0.2 0.2 1"/>
+    </asset>
+
+    <worldbody>
+        <body name="hopper" pos="0 0 0.355">
+            <freejoint/>
+
+            <inertial pos="0 0 0"
+                      mass="1.63"
+                      diaginertia="0.025 0.025 0.008"/>
+
+            <site name="COM"
+                  pos="0 0 0"
+                  size="0.02"
+                  rgba="1 0 0 1"/>
+
+            <geom name="main_body"
+                  type="cylinder"
+                  fromto="0 0 -0.150 0 0 0.445"
+                  size="0.06"
+                  material="body_mat"
+                  contype="1"
+                  conaffinity="1"/>
+
+            <geom name="leg1"
+                  type="capsule"
+                  fromto="0 0 -0.005 0.4 0 -0.355"
+                  size="0.012"
+                  material="leg_mat"
+                  contype="0"
+                  conaffinity="0"/>
+            <geom name="foot1_geom"
+                  type="sphere"
+                  pos="0.4 0 -0.355"
+                  size="0.025"
+                  material="foot_mat"
+                  contype="1"
+                  conaffinity="1"/>
+            <site name="foot1"
+                  pos="0.4 0 -0.355"
+                  size="0.015"
+                  rgba="1 0 0 1"/>
+
+            <geom name="leg2"
+                  type="capsule"
+                  fromto="0 0 -0.005 -0.4 0 -0.355"
+                  size="0.012"
+                  material="leg_mat"
+                  contype="0"
+                  conaffinity="0"/>
+            <geom name="foot2_geom"
+                  type="sphere"
+                  pos="-0.4 0 -0.355"
+                  size="0.025"
+                  material="foot_mat"
+                  contype="1"
+                  conaffinity="1"/>
+            <site name="foot2"
+                  pos="-0.4 0 -0.355"
+                  size="0.015"
+                  rgba="0 1 0 1"/>
+
+            <geom name="leg3"
+                  type="capsule"
+                  fromto="0 0 -0.005 0 0.4 -0.355"
+                  size="0.012"
+                  material="leg_mat"
+                  contype="0"
+                  conaffinity="0"/>
+            <geom name="foot3_geom"
+                  type="sphere"
+                  pos="0 0.4 -0.355"
+                  size="0.025"
+                  material="foot_mat"
+                  contype="1"
+                  conaffinity="1"/>
+            <site name="foot3"
+                  pos="0 0.4 -0.355"
+                  size="0.015"
+                  rgba="0 0 1 1"/>
+
+            <geom name="leg4"
+                  type="capsule"
+                  fromto="0 0 -0.005 0 -0.4 -0.355"
+                  size="0.012"
+                  material="leg_mat"
+                  contype="0"
+                  conaffinity="0"/>
+            <geom name="foot4_geom"
+                  type="sphere"
+                  pos="0 -0.4 -0.355"
+                  size="0.025"
+                  material="foot_mat"
+                  contype="1"
+                  conaffinity="1"/>
+            <site name="foot4"
+                  pos="0 -0.4 -0.355"
+                  size="0.015"
+                  rgba="1 1 0 1"/>
+
+            <body name="tvc_yaw" pos="0 0 -0.150">
+                <inertial pos="0 0 0"
+                          mass="0.01"
+                          diaginertia="0.001 0.001 0.001"/>
+                <joint name="tvc_yaw_joint"
+                       type="hinge"
+                       axis="1 0 0"
+                       range="-25 25"
+                       damping="0.1"
+                       armature="0.002"
+                       frictionloss="0.005"/>
+
+                <body name="tvc_pitch">
+                    <inertial pos="0 0 0"
+                              mass="0.02"
+                              diaginertia="0.0002 0.0002 0.0002"/>
+                    <joint name="tvc_pitch_joint"
+                           type="hinge"
+                           axis="0 1 0"
+                           range="-25 25"
+                           damping="0.1"
+                           armature="0.002"
+                           frictionloss="0.005"/>
+
+                    <geom name="engine"
+                          type="cylinder"
+                          pos="0 0 -0.025"
+                          size="0.04 0.02"
+                          material="engine_mat"
+                          contype="0"
+                          conaffinity="0"/>
+                    <site name="thrust_site"
+                          pos="0 0 -0.10"
+                          size="0.02"
+                          rgba="1 0.5 0 1"/>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <actuator>
+        <position name="tvc_yaw_servo"
+                  joint="tvc_yaw_joint"
+                  kp="10"
+                  ctrlrange="-25 25"
+                  forcerange="-2.5 2.5"/>
+        <position name="tvc_pitch_servo"
+                  joint="tvc_pitch_joint"
+                  kp="10"
+                  ctrlrange="-25 25"
+                  forcerange="-2.5 2.5"/>
+    </actuator>
+</mujoco>

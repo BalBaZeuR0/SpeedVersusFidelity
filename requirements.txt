@@ -7,4 +7,4 @@ scipy>=1.12       # tested 1.18.1
 PyYAML>=6.0       # tested 6.0.3
 requests>=2.31    # tested 2.34.2 (one-off lunar DEM download)
 pillow>=10        # tested 13.0.0
-# The PhysX adapter additionally needs Isaac Sim 6.0.1 (run via scripts/run_adapter_fidelity_docker.sh).
+# The PhysX adapter additionally needs Isaac Sim 6.0.1 (native install, run via scripts/run_matrix_native.sh).

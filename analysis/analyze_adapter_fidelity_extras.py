@@ -1,11 +1,11 @@
-"""Analyse the three post-matrix extras runs (see scripts/adapter_fidelity_extras_entrypoint.sh).
+"""Analyse the three post-matrix extras runs (see scripts/run_extras_native.sh).
 
   T1  six_dof=false ablation  -> does the closed-loop divergence collapse when the
       gimbal control moment is removed? (expectation: analytic ~= PhysX to ~g*dt)
   T2  dt sweep                 -> does the S2 vertical-velocity offset scale as g*dt?
   T3  PhysX determinism        -> are two same-seed runs bit-identical?
 
-  ./.venv-analytic/Scripts/python.exe analysis/analyze_adapter_fidelity_extras.py
+  python analysis/analyze_adapter_fidelity_extras.py
 """
 from __future__ import annotations
 

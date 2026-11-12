@@ -47,7 +47,7 @@ Environment-steps per second of a batched NumPy implementation of the analytic s
 
 - Windows 11 or Linux, Python 3.12
 - Analytic adapter, tests, analysis: CPU only
-- PhysX adapter: NVIDIA GPU with CUDA, Docker, image `nvcr.io/nvidia/isaac-sim:6.0.1` (~32 GB)
+- PhysX adapter: Linux, NVIDIA GPU with CUDA, a native (pip) install of Isaac Sim 6.0.1 + Isaac Lab in its own venv; no Docker
 
 ### Steps
 
@@ -86,14 +86,30 @@ The first run downloads a lunar DEM into `assets/moon_heightmaps/` (git-ignored)
 [matrix] done, 0 failed run(s)
 ```
 
-### Full matrix with PhysX (Isaac Sim in Docker)
+### Full matrix with PhysX (native Isaac Sim)
+
+Point `ISAAC_PY` at the python of the Isaac Lab venv (it must `import isaacsim`). On the first call
+`scripts/native_env.sh` installs pyarrow and pytest into `.deps/` (git-ignored, `--no-deps`, so Isaac's numpy is kept).
+The rocket USD is converted from `assets/rocket/hopper_lunar.xml` on the first PhysX run.
 
 ```bash
-FID_REPEATS=5 FID_HORIZON=1000 FID_WARMUP=100 ./scripts/run_adapter_fidelity_docker.sh
+export ISAAC_PY=/path/to/env_isaaclab/bin/python
+FID_OUT_DIR=outputs/smoke FID_REPEATS=1 FID_SCENARIOS="c1_nominal" ./scripts/run_matrix_native.sh   # smoke test
+FID_REPEATS=5 FID_HORIZON=1000 FID_WARMUP=100 ./scripts/run_matrix_native.sh                         # full matrix
+./scripts/run_extras_native.sh                  # 6-DOF ablation, dt sweep, PhysX determinism
 python analysis/analyze_adapter_fidelity.py     # -> outputs/adapter_fidelity/analysis/metrics.csv, summary.csv
 ```
 
-On Git Bash for Windows prefix the Docker command with `MSYS_NO_PATHCONV=1`. The full suite is 7 scenarios x 5 repeats x 2 adapters = 70 runs (~40 min on the laptop above).
+Expected output of the smoke test (last lines, RTX 5060 workstation):
+
+```
+[fidelity] wrote canonical init -> outputs/smoke/init__r00.json pos=[-14.676592826843262, -26.619754791259766, 23.596473693847656]
+[fidelity] c1_nominal__r00__analytic: 1794.3 step/s (rt x29.91), init_sync_err=0.00000 m (moved 0.00 m to align)
+[fidelity] c1_nominal__r00__physx: 497.4 step/s (rt x8.29), init_sync_err=0.00045 m (moved 29.13 m to align)
+[matrix] done, 0 failed run(s)
+```
+
+The full suite is 7 scenarios x 5 repeats x 2 adapters = 70 runs.
 
 ## Reproducing the results
 
@@ -116,7 +132,7 @@ SpeedVersusFidelity/
 ├── configs/      # vehicle, simulation, terrain and RL configuration (YAML)
 ├── docs/         # ADAPTER_FIDELITY.md: protocol and file roles in detail
 ├── plots/        # result figures (PNG + PDF)
-├── scripts/      # Docker launchers, figure + diagram scripts
+├── scripts/      # native Isaac Sim launchers, figure + diagram scripts
 ├── tests/        # unit tests (analytic path, no Isaac Sim)
 ├── NOTICE.md     # which files come from LunarRocket and what was changed
 ├── requirements.txt

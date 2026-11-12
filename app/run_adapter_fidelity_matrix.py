@@ -14,13 +14,14 @@ scenario through the analytic adapter and through the PhysX adapter. Each
 (scenario, repeat, adapter) run is a **subprocess** so a PhysX crash cannot take the
 whole matrix down and the two adapters get independent, un-contaminated timing.
 
-Run this INSIDE the Isaac Sim container. See scripts/run_adapter_fidelity_docker.sh.
+Run this with the Isaac Sim python. See scripts/run_matrix_native.sh.
 """
 
 from __future__ import annotations
 
 import argparse
 import subprocess
+import time
 import sys
 from pathlib import Path
 
@@ -93,7 +94,14 @@ def main(argv=None) -> int:
                     cmd += ["--closed-loop"]
                 elif scenario == S6_NAME:
                     cmd += ["--actions-json", str(actions_json)]
+                result = out / f"{scenario}__r{r:02d}__{adapter}.json"
+                t0 = time.time()
                 rc = sh(cmd)
+                # Isaac's SimulationApp can swallow a Python exception and still exit 0,
+                # so a run only counts as successful if it wrote a fresh result file.
+                if rc == 0 and not (result.exists() and result.stat().st_mtime >= t0 - 1):
+                    print(f"  !! no fresh result file {result}", flush=True)
+                    rc = 1
                 failures += rc != 0
 
     print(f"\n[matrix] done, {failures} failed run(s)", flush=True)

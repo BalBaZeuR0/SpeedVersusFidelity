@@ -103,7 +103,7 @@ def build_physx(configs: dict, effective_dt: float, headless: bool):
         from omni.isaac.kit import SimulationApp
 
     # We never render in this study; disabling RTX avoids the Vulkan init that
-    # fails under Docker Desktop / WSL2 and cuts startup + VRAM. PhysX runs on CUDA.
+    # fails under Docker Desktop / WSL2 and cuts startup + VRAM (kept for the native runs too). PhysX runs on CUDA.
     app = SimulationApp(
         {
             "headless": bool(headless),

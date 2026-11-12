@@ -1,26 +1,27 @@
 #!/usr/bin/env bash
-# In-container entrypoint for the three "extras" tests requested after the main
-# matrix (all closed-loop unless noted):
+# Three "extras" tests run after the main matrix (all closed-loop unless noted), on a
+# native Isaac Sim install:
 #
 #   T1  six_dof=false ablation      c1..c5, analytic + physx, --no-six-dof, 3 repeats
 #   T2  integration-step (dt) sweep s2 (open loop) + c1, dt in {1/120, 1/30}
 #   T3  PhysX determinism           c1_nominal physx, same seed, run twice
 #
+#   ./scripts/run_extras_native.sh
+#
 # Each single run is its own subprocess (crash isolation, clean timing), exactly
 # like run_adapter_fidelity_matrix.py.
 set -uo pipefail
 
-PROJECT_DIR="/workspace/LunarRocket"
-PY=/isaac-sim/python.sh
+# shellcheck source=native_env.sh
+source "$(dirname "${BASH_SOURCE[0]}")/native_env.sh" || exit 1
+cd "$SVF_REPO"
+
+PY="$ISAAC_PY"
 MOD="app.benchmark_adapter_fidelity"
 DT60=0.016666666666666666
 DT120=0.008333333333333333
 DT30=0.03333333333333333
 EX="outputs/adapter_fidelity/extras"
-
-cd /isaac-sim
-export PYTHONPATH="$PROJECT_DIR:${PYTHONPATH:-}"
-cd "$PROJECT_DIR"
 mkdir -p "$EX"
 
 fail=0
@@ -69,5 +70,5 @@ for spec in "120:$DT120:2000" "030:$DT30:500"; do
 done
 
 echo
-echo "[extras] done, $fail failed run(s). Outputs under $PROJECT_DIR/$EX/"
+echo "[extras] done, $fail failed run(s). Outputs under $SVF_REPO/$EX/"
 exit 0
